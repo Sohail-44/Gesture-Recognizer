@@ -5,6 +5,7 @@ import edu.macalester.graphics.Ellipse;
 import edu.macalester.graphics.GraphicsGroup;
 import edu.macalester.graphics.Point;
 
+import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
@@ -80,6 +81,7 @@ public class Recognizer {
         return 0;
     }
 
+    
 
 
 

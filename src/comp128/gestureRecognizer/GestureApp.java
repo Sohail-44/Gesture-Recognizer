@@ -2,6 +2,9 @@ package comp128.gestureRecognizer;
 
 import edu.macalester.graphics.*;
 import edu.macalester.graphics.Point;
+import edu.macalester.graphics.events.MouseButtonEvent;
+import edu.macalester.graphics.events.MouseMotionEvent;
+import edu.macalester.graphics.events.MouseMotionEventHandler;
 import edu.macalester.graphics.ui.Button;
 import edu.macalester.graphics.ui.TextField;
 
@@ -9,6 +12,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.function.Consumer;
 
+import edu.macalester.graphics.Line;
 /**
  * The window and user interface for drawing gestures and automatically recognizing them
  * Created by bjackson on 10/29/2016.
@@ -23,6 +27,7 @@ public class GestureApp {
     private TextField templateNameField;
     private GraphicsText matchLabel;
     private Deque<Point> path;
+    private Point firstPoint;
 
 
     public GestureApp(){
@@ -61,6 +66,28 @@ public class GestureApp {
         canvas.onCharacterTyped(handleKeyCommand);
 
         //TODO: Add mouse listeners to allow the user to draw and add the points to the path variable.
+
+       
+        
+        
+        canvas.onMouseDown((MouseButtonEvent event1) -> {
+            canvas.removeAll(); // erasing the canvas dirtectly no need for seperate release method
+            Point firsPoint = new Point(event1.getPosition().getX(), event1.getPosition().getY());
+            Line line1 = new Line(firsPoint,firsPoint);
+            line1.setStrokeWidth(5);
+            canvas.add(line1);
+        });
+
+        canvas.onDrag((MouseMotionEvent event2) ->{
+            Line line2 = new Line(event2.getPreviousPosition(),event2.getPosition());
+            line2.setStrokeWidth(5);
+            canvas.add(line2);
+
+        }
+        );
+
+
+
 
 
     }
