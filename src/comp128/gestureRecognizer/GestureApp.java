@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 import edu.macalester.graphics.Line;
 /**
- * The window and user interface for drawing gestures and automatically recognizing them
+ * The window and user interface forr drawing gestures and automatically recognizing them
  * Created by bjackson on 10/29/2016.
  */
 public class GestureApp {
@@ -65,31 +65,53 @@ public class GestureApp {
         Consumer<Character> handleKeyCommand = ch -> keyTyped(ch);
         canvas.onCharacterTyped(handleKeyCommand);
 
-        //TODO: Add mouse listeners to allow the user to draw and add the points to the path variable.
-
-       
+        // Adding the mouse listeners to allow the user to draw and add the points to the path variable.
         
-        
-        canvas.onMouseDown((MouseButtonEvent event1) -> {
-            canvas.removeAll(); // erasing the canvas dirtectly no need for seperate release method
-            Point firsPoint = new Point(event1.getPosition().getX(), event1.getPosition().getY());
-            Line line1 = new Line(firsPoint,firsPoint);
-            line1.setStrokeWidth(5);
-            canvas.add(line1);
+        // Handles the mouse down - start a new gesture
+        canvas.onMouseDown((MouseButtonEvent event) -> {
+            // Clears the canvas and resets the path
+            removeAllNonUIGraphicsObjects();
+            path.clear();
+            
+            
+            
+            
+            // Stores the first point
+            firstPoint = new Point(event.getPosition().getX(), event.getPosition().getY());
+            path.add(firstPoint);
+            
+            // Draws the initial point
+            Line line = new Line(firstPoint, firstPoint);
+            line.setStrokeWidth(5);
+            canvas.add(line);
         });
 
-        canvas.onDrag((MouseMotionEvent event2) ->{
-            Line line2 = new Line(event2.getPreviousPosition(),event2.getPosition());
-            line2.setStrokeWidth(5);
-            canvas.add(line2);
+        // Handles the mouse drag - continue the gesture
+        canvas.onDrag((MouseMotionEvent event) -> {
+            // Create the line from the previous position to the current position
+            Line line = new Line(event.getPreviousPosition(), event.getPosition());
+            line.setStrokeWidth(5);
+            canvas.add(line);
+            
+            // Adds the current point to the path
+            path.add(event.getPosition());
+        });
 
-        }
-        );
-
-
-
-
-
+        // Handle the mouse up - recognize the gesture
+        canvas.onMouseUp((MouseButtonEvent event) -> {
+            // Only attempt to recognize if we have enough points
+            if (path.size() >= 2) {
+                Match match = recognizer.recognize(path);
+                
+                // Updates the match label with the result
+                if (match != null) {
+                    matchLabel.setText("Match: " + match.getTermpName() + " (" + 
+                                      String.format("%.2f", match.getScore() * 100) + "%)");
+                } else {
+                    matchLabel.setText("Match: None");
+                }
+            }
+        });
     }
 
     /**
@@ -110,8 +132,14 @@ public class GestureApp {
         if (name.isEmpty()){
             name = "no name gesture";
         }
-        recognizer.addTemplate(name, path); // Add the points stored in the path as a template
-
+        
+        // Only adds template if we have enough points
+        if (path.size() >= 2) {
+            recognizer.addTemplate(name, path); // Add the points stored in the path as a template
+            matchLabel.setText("Added template: " + name);
+        } else {
+            matchLabel.setText("Please draw a gesture first");
+        }
     }
 
     /**
@@ -129,6 +157,7 @@ public class GestureApp {
             if (points != null){
                 recognizer.addTemplate(name, points);
                 System.out.println("Loaded "+name);
+                matchLabel.setText("Loaded template: " + name);
             }
         }
         else if (ch.equals('s')){
@@ -136,12 +165,18 @@ public class GestureApp {
             if (name.isEmpty()){
                 name = "gesture";
             }
-            ioManager.saveGesture(path, name, name+".xml");
-            System.out.println("Saved "+name);
+            if (path.size() >= 2) {
+                ioManager.saveGesture(path, name, name+".xml");
+                System.out.println("Saved "+name);
+                matchLabel.setText("Saved gesture: " + name);
+            } else {
+                matchLabel.setText("Please draw a gesture first");
+            }
         }
     }
 
     public static void main(String[] args){
         GestureApp window = new GestureApp();
+        // the UI works well!  
     }
 }
