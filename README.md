@@ -1,4 +1,4 @@
-Comp 128 HW1: Gesture Recognizer
+ Gesture Recognizer
 ================================
 
 For this homework assignment, you will practice using data structures to implement an algorithm for gesture recognition of drawn 2D gestures.
