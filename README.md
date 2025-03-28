@@ -1,78 +1,12 @@
  Gesture Recognizer
 ================================
 
-For this homework assignment, you will practice using data structures to implement an algorithm for gesture recognition of drawn 2D gestures.
-
-### Due Dates
-This homework will have three milestones:
-
-* Part 1: For this milestone, you should answer the Part 1 Questions below. Submit your answers on the Moodle assignment that corresponds with this homework.
-* Part 2: For this milestone you should commit and push the code to allow a user to draw a gesture. The gesture does not need to be recognized at this point.
-* Part 3: For this milestone you should commit and push the completed assignment that allows users to add templates and recognize gestures. The test files should pass.
-
-### Part 1 Questions
-
-The algorithm you will implement is called the $1 Gesture recognizer. Start by reading the [research paper](./res/1dollar.pdf) describing the algorithm which was published at the User Interface Software and Technology (UIST) Symposium in 2007.
-
-For part 1, you should answer the following questions:
-
-1. In the starter code, we have declared a double-ended queue (Deque) data structure to hold the list of drawn points. Describe why this is an appropriate choice.
-2. In order to draw the gesture on the CanvasWindow, you will need to implement several mouse event handlers. List each of the methods you will use, and briefly describe what actions you will need to take in order to draw the gesture on the CanvasWindow. 
-3. **In your own words**, describe each step of the recognition algorithm. For each step, explain why the actions performed on the data are needed.
-4. Look closely at the test cases in TestRecognizer. Make sure you understand exactly how each one works. The test cases call methods that you will need to write in the Recognizer class. For each call to a method in the Recognizer class, write down the full method signature including the return type, name, and parameters. 
-5. Please review each of the provided classes that we have given you. For each one, describe their purpose. When might you want to use the functions provided?
-6. We have given you a partial class decomposition. Can you think of any more classes you might need to store the data involved in this program? In particular think about what the return type of an attempted gesture recognition should be.
-7. Assume you are given a gesture with 10 points spaced equidistantly along the x-axis (e.g. (0, 0), (1,0), (2, 0) ... (9,0)). Assume you want to resample the gesture to only contain 5 points. What would the resample interval be for this scenario?
-8. Now, run the resample algorithm by hand on the 10 points from the previous question. At each stage of the algorithm show your work by writing down which points are being considered, what the segment distance is between them, and what the accumulated distance is (similar to the example under algorithm hints below!). Make sure it is clear what resampled points are added to the deque.
-9. What is still confusing about the algorithm?
-
-Please submit your answers in Moodle for the this homework assignment. Make sure that they are thoughtfully written. Please edit for grammar, clarity, and coherence.
-
-### Part 2
-
-For part 2, your code should allow the user to draw in the user interface shown in the image below. We have already given you the code that creates the user interface elements in `GestureApp`.
-
-![Gesture Recognizer Screenshot](./res/screenshot.png)
-
-The user should be able to click to clear any current drawings on the canvas and then drag with the mouse to draw a gesture (e.g. the arrow drawn in the upper portion of the screen). This will require implementing several mouse event handler methods. Hint: Look back at the Painter lab from comp127  and Listing 6.26 in the textbook for similar examples.
-The gesture can be drawn in a CanvasWindow using Line objects from the [kilt-graphics package](https://mac-comp127.github.io/kilt-graphics/), formerly known as comp127graphics, between successive mouse points.
-
-### Part 3
-
-Complete the `Recognizer` class that implements the $1 gesture recognition algorithm. Re-read the portions of the paper describing the steps as needed, and refer to the hints below. I have provided a test class that you may use to test your implementation. Uncomment the code in `TestRecognizer` and complete the todo comments in the testRecognize method. Don't forget to write tests for any additional non-trivial methods that you add.
-
-The `Visualizer` class allows graphical debugging. This class draws each step as a different color. You may need to enlarge the window to see all of the steps. Feel free to modify this class as needed to help you debug the code and make sure it is working. Visually examine the results and see if they make sense. This will work for the resample, rotation, scaling, and translating methods. A correct implementation, should produce the result below: 
-
-![Visualizer Screenshot](./res/visualizer.png)
-
-Make the addTemplate method work. This should create a gesture template for the path parameter. Think carefully about which data structure you will use in your Recognizer class to store the gesture templates. It is okay to use ones discussed in comp127, even if we haven't gotten to them yet this semester. Practice class/Method decomposition!
-
-Hook your recognizer up to the rest of your user interface. When the user presses the mouse, the previous drawing should be cleared from the canvas. On releasing the mouse, the gesture should be recognized, and the name of the closest match and the score should be displayed in a `matchlabel` label on the screen. See the GestureApp screenshot above for an example.
-
-### Helpful Hints
-
-* When drawing the gesture, each time you move the mouse you need to store the 2D point representing its position at that point in time. We have provided a Point class that you can use. Hint: look carefully at the methods defined in the Point class. They will be useful when implementing the recognition algorithm.
-* The Point class’s rotate method assumes that the angle is in radians, not degrees!
-* A template consists of a name and some points. Making a new class to group these things together will help you write cleaner code.
-* To make the visualizer show both a matching template _and_ its match score, you will probably need a new class, a “Match” or “Result,” that groups those two things together.
-
-You will also find some pseudo-code for some of the steps below. Think carefully about the pseudo-code and cross reference it with the algorithm description in the paper. Don't just blindly copy it. As always, you should make sure you use good method decomposition.
-
-#### Resampling Points
+Implemented the $1 Gesture recognizer Algorithm from the [research paper](./res/1dollar.pdf)  which was published at the User Interface Software and Technology (UIST) Symposium in 2007 through the guidance and instructions from Professor Bret Jackson as part of Data Structures Class. 
 
 
-To resample the path into only n points (we use n=64):
-1. Calculate the total path length of the original path by adding up the distances between successive points.
-2. Divide this path length by (n–1), where n is the number of resampled points we want to achieve, to get the distance between each of the resampled points. We will call this the resampleInterval.
-3. Add the first point to the list of resampled points.
-4. Iterate over the original points in the path. Keep track of the current point and the previous point each iteration.
-	1. As you iterate, calculate the current distance between the current and previous point.
-    2. If that distance plus the accumulated distance so far is equal to or exceeds the resampleInterval, calculate where the resampled point should lie by linearly interpolating (see the Point.interpolate method) between the current iteration point and the previous. The alpha value for the interpolation should be (resampleInterval - accumulatedDistance)/segmentDistance, where accumulated distance is the total distance from the last output resampled point to the previous iteration point and segmentDistance is the distance between the current iteration point and the previous iteration point. Add the resampled point to the list of resampled points and set the previous iteration point to be the resampled point (We want the next segment distance to be from the resampled point to the current iteration point). Reset the accumulatedDistance to zero and continue iterating without resetting the current point.
-    3. Otherwise, add the current distance to the accumulated distance. Update the previous and current point variables for the next iteration.
-5. It is possible due to rounding errors that the last segment distance will be slightly less than the resampleInterval, leading to only n-1 resampled points. If that is the case, add the last original point to the resampled points list.
+** Breif steps **
 
-
-To help debug, you can add print statements to your resample method or [set break points to step through your code](https://docs.google.com/document/d/1e4-utwnfAaut9XjBnOsqYGwlhgX9bPS4uzI7UpUM1wc/edit?usp=sharing). The resample test should provide the following steps when resampling from 20 points along the x-axis to 10 points:
+The resample test should provide the following steps when resampling from 20 points along the x-axis to 10 points:
 
 ![Gesture Resampling](./res/GestureResampling.png)
 
@@ -146,19 +80,3 @@ To recognize a gesture, iterate over the possible templates. For each template, 
 
 In this assignment, the primary learning goals are to gain practice using data structures, develop good object-oriented organizational habits, and to learn how to convert pseudo-code into valid java. As a published research algorithm, there are many code solutions that exist for the $1 gesture recognizer. Looking at these or any other student's code would negate the benefits you will gain by completing the assignment and is a violation of Macalester's academic integrity policy. You may discuss the assignment with other students, but do not share your code or look at other code. **The only resources you may use to help you on the assignment are the research paper and pseudo-code described above.**  Misuse of resources will result in a zero grade and further action per Macalester's policy on Academic Integrity. If you get stuck, I would encourage you to visit the preceptor's or my office hours to get help.
 
-### Submission
-
-Part 1 will be submitted on moodle. It will be graded based on effort shown in answering the questions.
- 
-The code for parts 2 and 3 should be committed and pushed to github.
-
-Please make sure to follow the guidelines for [good java style](https://docs.google.com/document/d/1GT207Pia0q7bETKrqSi--C3X7N_67XgRXYEvQFrwHdI/edit?usp=sharing). I have given you tests for most of the methods described in the pseudo-code, but you should add additional tests for any non-trivial methods you add.
-
-To receive full credit, you must have:
-* Good class decomposition
-* Good method decomposition
-* Correct Execution:
-  * The user should be able to draw a gesture by clicking and dragging with the mouse
-  * The user should be able to add a gesture that was just drawn as a template
-  * After drawing a gesture, it should be recognized and the name and score should be displayed
-* Correct Style
